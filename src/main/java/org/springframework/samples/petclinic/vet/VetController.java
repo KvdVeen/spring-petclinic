@@ -15,16 +15,26 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.validation.Valid;
 
 /**
  * @author Juergen Hoeller
@@ -74,6 +84,63 @@ class VetController {
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vets.findAll());
 		return vets;
+	}
+
+	@PostMapping("/vets/new/1")
+	public @ResponseBody Vets processCreationForm() {
+		Vets veterinarians = new Vets();
+		veterinarians.getVetList().addAll(this.vets.findAll());
+
+		@Valid Vet vet = new Vet();
+		vet.setFirstName("John");
+		vet.setLastName("Doe");
+		vet.setSpecialtiesInternal(new HashSet<>(veterinarians.getVetList().get(0).getSpecialties()));
+		this.vets.save(vet);
+
+		veterinarians.getVetList().add(vet);
+		return veterinarians;
+	}
+
+	@PostMapping("/vets/new/2")
+	public @ResponseBody Vets noFirstName() {
+		Vets veterinarians = new Vets();
+		veterinarians.getVetList().addAll(this.vets.findAll());
+
+		@Valid Vet vet = new Vet();
+		vet.setLastName("Doe");
+		vet.setSpecialtiesInternal(new HashSet<>(veterinarians.getVetList().get(0).getSpecialties()));
+		this.vets.save(vet);
+
+		veterinarians.getVetList().add(vet);
+		return veterinarians;
+	}
+
+	@PostMapping("/vets/new/3")
+	public @ResponseBody Vets noLastName() {
+		Vets veterinarians = new Vets();
+		veterinarians.getVetList().addAll(this.vets.findAll());
+
+		@Valid Vet vet = new Vet();
+		vet.setLastName("Doe");
+		vet.setSpecialtiesInternal(new HashSet<>(veterinarians.getVetList().get(0).getSpecialties()));
+		this.vets.save(vet);
+
+		veterinarians.getVetList().add(vet);
+		return veterinarians;
+	}
+
+	@PostMapping("/vets/new/4")
+	public @ResponseBody Vets doubleSpecialties() {
+		Vets veterinarians = new Vets();
+		veterinarians.getVetList().addAll(this.vets.findAll());
+
+		@Valid Vet vet = new Vet();
+		vet.setLastName("Doe");
+		vet.setSpecialtiesInternal(new HashSet<>(veterinarians.getVetList().get(1).getSpecialties()));
+		this.vets.save(vet);
+
+		veterinarians.getVetList().add(vet);
+		return veterinarians;
 	}
 
 }

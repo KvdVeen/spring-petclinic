@@ -29,9 +29,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -77,10 +79,8 @@ class VetControllerTests {
 
 	@Test
 	void testShowVetListHtml() throws Exception {
-
 		mockMvc.perform(MockMvcRequestBuilders.get("/vets.html?page=1")).andExpect(status().isOk())
 				.andExpect(model().attributeExists("listVets")).andExpect(view().name("vets/vetList"));
-
 	}
 
 	@Test
@@ -91,4 +91,29 @@ class VetControllerTests {
 				.andExpect(jsonPath("$.vetList[0].id").value(1));
 	}
 
+	@Test
+	void testCreationOfSimpleVet() throws Exception {
+		ResultActions actions = mockMvc.perform(post("/vets/new/1")).andExpect(status().isOk());
+		actions.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+		actions.andReturn().getResponse().getContentAsString().contains("John");
+		actions.andReturn().getResponse().getContentAsString().contains("Doe");
+	}
+
+	@Test
+	void testCreationOfSimpleVetWithoutFirstName() throws Exception {
+		ResultActions actions = mockMvc.perform(post("/vets/new/2"));
+		actions.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+		assertEquals(actions.andReturn().getResponse().getStatus(), "500", "Call should have failed because firstname is empty");
+	}
+
+	@Test
+	void testCreationOfSimpleVetWithoutLastName() throws Exception {
+		ResultActions actions = mockMvc.perform(post("/vets/new/3"));
+		actions.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+		assertEquals(actions.andReturn().getResponse().getStatus(), "500", "Call should have failed because firstname is empty");
+	}
+
+
+
 }
+
